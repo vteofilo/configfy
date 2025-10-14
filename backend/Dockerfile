@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk as build
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY src src
 
 RUN ./gradlew clean bootJar --no-daemon
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre AS runtime
 
 WORKDIR /app
 
