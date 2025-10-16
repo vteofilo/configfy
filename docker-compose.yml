@@ -1,27 +1,4 @@
-version: '3.9'
-
 services:
-  configfy-backend:
-    build:
-      context: ./backend
-      args:
-        platform: "linux/amd64"
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/configfydb
-      SPRING_R2DBC_USERNAME: postgres
-      SPRING_R2DBC_PASSWORD: password
-      SPRING_R2DBC_POOL_INITIAL_SIZE: 5
-      SPRING_R2DBC_POOL_MAX_SIZE: 20
-      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080/auth
-      KEYCLOAK_REALM: configfyrealm
-      KEYCLOAK_RESOURCE: configfy-backend
-      KEYCLOAK_CREDENTIALS_SECRET: "ba5245cc-9ac5-4c6b-8000-836871909b3f"
-    depends_on:
-      - postgres
-      - keycloak
-
   postgres:
     image: postgres:15-alpine
     environment:
@@ -32,23 +9,58 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   keycloak:
     image: quay.io/keycloak/keycloak:21.0
     environment:
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: adminpassword
-    command: start-dev
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: true
     ports:
       - "8081:8080"
     volumes:
-      - ./scripts/init-keycloak.sh:/opt/keycloak/init-keycloak.sh
+      - ./keycloak-config:/opt/keycloak/data/import
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["start-dev", "--import-realm"]
+    healthcheck:
+      test: ['CMD-SHELL', '[ -f /tmp/HealthCheck.java ] || echo "public class HealthCheck { public static void main(String[] args) throws java.lang.Throwable { System.exit(java.net.HttpURLConnection.HTTP_OK == ((java.net.HttpURLConnection)new java.net.URL(args[0]).openConnection()).getResponseCode() ? 0 : 1); } }" > /tmp/HealthCheck.java && java /tmp/HealthCheck.java http://localhost:8080/health/ready']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    networks:
+      - default
+
+  configfy-backend:
+    build:
+      context: ./backend
+      args:
+        platform: "linux/amd64"
+    ports:
+      - "8080:8080"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/configfydb
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: password
+      KEYCLOAK_CLIENT_SECRET: JjcwF10P38swenKq9s4gLY752aLjQp6y
+    restart: on-failure
     networks:
       - default
 
 volumes:
   pgdata:
-  keycloak_data:
 
 networks:
   default:
