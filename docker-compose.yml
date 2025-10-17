@@ -21,6 +21,11 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_PORT: 8080
     ports:
       - "8081:8080"
     volumes:
@@ -55,6 +60,8 @@ services:
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: password
       KEYCLOAK_CLIENT_SECRET: JjcwF10P38swenKq9s4gLY752aLjQp6y
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/configfyrealm
+      KEYCLOAK_JWK_URI: http://keycloak:8080/realms/configfyrealm/protocol/openid-connect/certs
     restart: on-failure
     networks:
       - default

@@ -48,6 +48,21 @@
       ],
       "realmRoles": ["user"],
       "emailVerified": true
+    }, {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user", "admin"],
+      "emailVerified": true
     }
   ],
   "roles": {
