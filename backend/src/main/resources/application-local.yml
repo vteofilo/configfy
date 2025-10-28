@@ -1,0 +1,36 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/configfydb
+    username: postgres
+    password: password
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: configfy
+    password: configfy
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8081/realms/configfyrealm/protocol/openid-connect/certs
+
+  reactor:
+    debug-agent:
+      enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.configfy: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.web: DEBUG

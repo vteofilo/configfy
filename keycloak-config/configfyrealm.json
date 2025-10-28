@@ -1,17 +1,58 @@
 {
   "realm": "configfyrealm",
   "enabled": true,
+  "displayName": "Configfy",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Configfy</span></div>",
   "sslRequired": "external",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
   "editUsernameAllowed": false,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "loginTheme": "keycloak",
+  "accountTheme": "keycloak",
+  "adminTheme": "keycloak",
+  "emailTheme": "keycloak",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "pt-BR"],
+  "defaultLocale": "en",
   "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "defaultSignatureAlgorithm": "RS256",
+  "revokeRefreshToken": false,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": false,
+  "offlineSessionMaxLifespan": 5184000,
+  "clientSessionIdleTimeout": 0,
+  "clientSessionMaxLifespan": 0,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "oauth2DeviceCodeLifespan": 600,
+  "oauth2DevicePollingInterval": 5,
   "clients": [
     {
       "clientId": "configfy-api",
+      "name": "Configfy Backend API",
+      "description": "Backend REST API for feature flag management",
       "enabled": true,
+      "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "JjcwF10P38swenKq9s4gLY752aLjQp6y",
       "redirectUris": [
@@ -20,22 +61,142 @@
       ],
       "webOrigins": [
         "http://localhost:8080",
-        "http://configfy-backend:8080"
+        "http://configfy-backend:8080",
+        "http://localhost:3000"
       ],
-      "publicClient": false,
-      "protocol": "openid-connect",
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false",
+        "access.token.lifespan": "300"
+      },
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "configfy-web",
+      "name": "Configfy Web Dashboard",
+      "description": "Frontend React dashboard for managing feature flags",
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "web-client-secret-change-in-production",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:3000/auth/callback",
+        "http://localhost:3000/silent-check-sso.html"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "publicClient": true,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "backchannel.logout.session.required": "true",
+        "post.logout.redirect.uris": "+",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "pkce.code.challenge.method": "S256"
+      },
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "configfy-sdk",
+      "name": "Configfy SDK Client",
+      "description": "Bearer-only client for SDK integrations",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "display.on.consent.screen": "false"
+      },
       "fullScopeAllowed": true
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "configfy-scope",
+      "description": "Custom scope for Configfy resources",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true",
+        "consent.screen.text": "Access to Configfy resources"
+      },
+      "protocolMappers": [
+        {
+          "name": "organization",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "organization",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "organization",
+            "jsonType.label": "String"
+          }
+        }
+      ]
     }
   ],
   "users": [
     {
       "username": "testuser",
       "enabled": true,
+      "totp": false,
+      "emailVerified": true,
       "email": "testuser@example.com",
       "firstName": "Test",
       "lastName": "User",
@@ -47,10 +208,20 @@
         }
       ],
       "realmRoles": ["user"],
-      "emailVerified": true
-    }, {
+      "clientRoles": {
+        "configfy-api": ["developer"]
+      },
+      "attributes": {
+        "locale": ["en"],
+        "organization": ["acme-corp"]
+      },
+      "groups": ["/Developers"]
+    },
+    {
       "username": "admin",
       "enabled": true,
+      "totp": false,
+      "emailVerified": true,
       "email": "admin@example.com",
       "firstName": "Admin",
       "lastName": "User",
@@ -62,19 +233,174 @@
         }
       ],
       "realmRoles": ["user", "admin"],
-      "emailVerified": true
+      "clientRoles": {
+        "configfy-api": ["admin", "developer"]
+      },
+      "attributes": {
+        "locale": ["en"],
+        "organization": ["acme-corp"]
+      },
+      "groups": ["/Admins"]
+    },
+    {
+      "username": "viewer",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "email": "viewer@example.com",
+      "firstName": "View",
+      "lastName": "Only",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "viewer",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "configfy-api": ["viewer"]
+      },
+      "attributes": {
+        "locale": ["en"],
+        "organization": ["acme-corp"]
+      }
     }
   ],
   "roles": {
     "realm": [
       {
         "name": "user",
-        "description": "User role"
+        "description": "Standard user role for authenticated users",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "configfyrealm"
       },
       {
         "name": "admin",
-        "description": "Admin role"
+        "description": "Administrator role with full system access",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "configfyrealm"
       }
-    ]
-  }
+    ],
+    "client": {
+      "configfy-api": [
+        {
+          "name": "developer",
+          "description": "Can create, edit and manage feature flags",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "admin",
+          "description": "Full administrative access to all resources",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "viewer",
+          "description": "Read-only access to feature flags and analytics",
+          "composite": false,
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "groups": [
+    {
+      "name": "Developers",
+      "path": "/Developers",
+      "attributes": {},
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "configfy-api": ["developer"]
+      },
+      "subGroups": []
+    },
+    {
+      "name": "Admins",
+      "path": "/Admins",
+      "attributes": {},
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "configfy-api": ["admin", "developer"]
+      },
+      "subGroups": []
+    },
+    {
+      "name": "Viewers",
+      "path": "/Viewers",
+      "attributes": {},
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "configfy-api": ["viewer"]
+      },
+      "subGroups": []
+    }
+  ],
+  "defaultRole": {
+    "name": "default-roles-configfyrealm",
+    "description": "${role_default-roles}",
+    "composite": true,
+    "composites": {
+      "realm": ["user"]
+    },
+    "clientRole": false
+  },
+  "requiredCredentials": ["password"],
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyDigits": 6,
+  "otpPolicyLookAheadWindow": 1,
+  "otpPolicyPeriod": 30,
+  "otpSupportedApplications": ["totpAppFreeOTPName", "totpAppGoogleName"],
+  "webAuthnPolicyRpEntityName": "keycloak",
+  "webAuthnPolicySignatureAlgorithms": ["ES256"],
+  "webAuthnPolicyRpId": "",
+  "webAuthnPolicyAttestationConveyancePreference": "not specified",
+  "webAuthnPolicyAuthenticatorAttachment": "not specified",
+  "webAuthnPolicyRequireResidentKey": "not specified",
+  "webAuthnPolicyUserVerificationRequirement": "not specified",
+  "webAuthnPolicyCreateTimeout": 0,
+  "webAuthnPolicyAvoidSameAuthenticatorRegister": false,
+  "webAuthnPolicyAcceptableAaguids": [],
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "smtpServer": {},
+  "eventsEnabled": false,
+  "eventsListeners": ["jboss-logging"],
+  "enabledEventTypes": [],
+  "adminEventsEnabled": false,
+  "adminEventsDetailsEnabled": false,
+  "identityProviders": [],
+  "identityProviderMappers": [],
+  "components": {},
+  "authenticationFlows": [],
+  "authenticatorConfig": [],
+  "requiredActions": [],
+  "browserFlow": "browser",
+  "registrationFlow": "registration",
+  "directGrantFlow": "direct grant",
+  "resetCredentialsFlow": "reset credentials",
+  "clientAuthenticationFlow": "clients",
+  "dockerAuthenticationFlow": "docker auth",
+  "attributes": {
+    "cibaBackchannelTokenDeliveryMode": "poll",
+    "cibaExpiresIn": "120",
+    "cibaInterval": "5",
+    "cibaAuthRequestedUserHint": "login_hint",
+    "parRequestUriLifespan": "60",
+    "frontendUrl": "",
+    "acr.loa.map": "{}"
+  },
+  "keycloakVersion": "24.0.0"
 }

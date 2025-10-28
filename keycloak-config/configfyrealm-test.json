@@ -1,0 +1,96 @@
+{
+  "realm": "configfyrealm-test",
+  "enabled": true,
+  "displayName": "Configfy Test",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "defaultSignatureAlgorithm": "RS256",
+  "accessTokenLifespan": 60,
+  "ssoSessionIdleTimeout": 600,
+  "ssoSessionMaxLifespan": 3600,
+  "clients": [
+    {
+      "clientId": "configfy-api-test",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "test-secret-do-not-use-in-production",
+      "redirectUris": ["http://localhost:8080/*"],
+      "webOrigins": ["http://localhost:8080"],
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "fullScopeAllowed": true
+    }
+  ],
+  "users": [
+    {
+      "username": "test-user-1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test1@test.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "configfy-api-test": ["developer"]
+      }
+    },
+    {
+      "username": "test-admin-1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@test.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "configfy-api-test": ["admin"]
+      }
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "User role"
+      },
+      {
+        "name": "admin",
+        "description": "Admin role"
+      }
+    ],
+    "client": {
+      "configfy-api-test": [
+        {
+          "name": "developer",
+          "description": "Developer role"
+        },
+        {
+          "name": "admin",
+          "description": "Admin role"
+        },
+        {
+          "name": "viewer",
+          "description": "Viewer role"
+        }
+      ]
+    }
+  }
+}
