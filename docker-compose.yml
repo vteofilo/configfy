@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15-alpine
+    container_name: configfy-postgres
     environment:
       POSTGRES_DB: configfydb
       POSTGRES_USER: postgres
@@ -14,9 +17,42 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - configfy-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: configfy-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - configfy-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: configfy-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: configfy
+      RABBITMQ_DEFAULT_PASS: configfy
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - configfy-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:21.0
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: configfy-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -26,6 +62,10 @@ services:
       KC_HTTP_ENABLED: true
       KC_HOSTNAME: keycloak
       KC_HOSTNAME_PORT: 8080
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/configfydb
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: password
     ports:
       - "8081:8080"
     volumes:
@@ -41,34 +81,53 @@ services:
       retries: 30
       start_period: 60s
     networks:
-      - default
+      - configfy-network
 
   configfy-backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
       args:
         platform: "linux/amd64"
+    container_name: configfy-backend
     ports:
       - "8080:8080"
+      - "5005:5005"
     depends_on:
       keycloak:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     environment:
       SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/configfydb
       SPRING_R2DBC_USERNAME: postgres
       SPRING_R2DBC_PASSWORD: password
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: configfy
+      SPRING_RABBITMQ_PASSWORD: configfy
       KEYCLOAK_CLIENT_SECRET: JjcwF10P38swenKq9s4gLY752aLjQp6y
       KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/configfyrealm
       KEYCLOAK_JWK_URI: http://keycloak:8080/realms/configfyrealm/protocol/openid-connect/certs
-    restart: on-failure
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+    volumes:
+      - ./backend/src:/app/src:ro
+    restart: unless-stopped
     networks:
-      - default
+      - configfy-network
 
 volumes:
   pgdata:
+    name: configfy-pgdata
 
 networks:
-  default:
+  configfy-network:
+    name: configfy-dev
     driver: bridge
