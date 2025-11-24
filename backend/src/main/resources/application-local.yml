@@ -25,6 +25,9 @@ spring:
     debug-agent:
       enabled: true
 
+  flyway:
+    clean-disabled: false
+
 server:
   port: 8080
 
@@ -34,3 +37,5 @@ logging:
     com.configfy: DEBUG
     reactor.netty: DEBUG
     org.springframework.web: DEBUG
+    org.flywaydb: DEBUG
+    org.springframework.r2dbc: TRACE
