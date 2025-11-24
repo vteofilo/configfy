@@ -1,0 +1,15 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/testdb
+    user: test
+    password: test
+
+logging:
+  level:
+    org.springframework.transaction: DEBUG
